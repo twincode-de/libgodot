@@ -13,7 +13,7 @@ BUILD_GDEXTENSION_DIR=$BUILD_DIR/gdextension
 host_system="$(uname -s)"
 host_arch="$(uname -m)"
 target="template_debug"
-target_arch_list="arm64 arm32"
+target_arch_list="arm64 arm32 x86_64"
 
 while [ "${1:-}" != "" ]
 do
@@ -42,6 +42,12 @@ function godot_to_android_arch() {
             ;;
         arm32)
             echo "armeabi-v7a"
+            ;;
+        x86_64)
+            echo "x86_64"
+            ;;
+        x86_32)
+            echo "x86"
             ;;
         *)
             echo "Unsupported arch: $godot_arch"

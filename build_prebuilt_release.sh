@@ -5,6 +5,7 @@ set -eux
 BASE_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 
 
+GODOT_DIR="$BASE_DIR/godot"
 BUILD_DIR=$BASE_DIR/build
 PREBUILT_DIR=$BUILD_DIR/prebuilt
 PREBUILT_TARGET_DIR=$PREBUILT_DIR/release
@@ -15,11 +16,20 @@ export SIGNING_DISABLED="true"
 export OSSRH_GROUP_ID="com.migeran.libgodot"
 export GODOT_VERSION_STATUS="migeran.2"
 
-./build_libgodot.sh --no-target --host-rebuild --host-release --update-api
-./build_libgodot.sh --target ios --release --host-release
-./build_libgodot.sh --target ios --simulator --release --host-release
-./build_libgodot.sh --target android --release --host-release
-./build_libgodot.sh --target android --release --host-release --target-arch arm32
+if [ ! -f "$GODOT_DIR/thirdparty/swappy-frame-pacing/arm64-v8a/libswappy-static.a" ]
+then
+    cd $GODOT_DIR
+    python3 "${GODOT_DIR}/misc/scripts/install_swappy_android.py"
+else
+    echo "Swappy already built, skipping..."
+fi
+
+cd $BASE_DIR
+./build_host_and_update_api.sh --release
+./build_libgodot.sh --release --target-platform ios --target-arch arm64 --library-type shared_library
+./build_libgodot.sh --release --target-platform android --target-arch arm64 --library-type shared_library
+./build_libgodot.sh --release --target-platform android --target-arch arm32 --library-type shared_library
+./build_libgodot.sh --release --target-platform android --target-arch x86_64 --library-type shared_library
 
 tmp_dir=$(mktemp -d)
 cd $ANDROID_DIR
@@ -33,8 +43,8 @@ zip -r $ANDROID_LIB_BUILD_DIR/libgodot-android.zip *
 rm -rf $tmp_dir
 
 cd $BASE_DIR
-./build_libgodot_xcframework.sh --target template_release
-./build_godotcpp_xcframework.sh --target template_release
+# ./build_libgodot_xcframework.sh --target template_release
+# ./build_godotcpp_xcframework.sh --target template_release
 
 ./build_godotcpp_android.sh --target template_release
 BUILD_GODOT_CPP_ANDROID_DIR=$BUILD_DIR/godot-cpp-android
@@ -42,11 +52,11 @@ BUILD_GODOT_CPP_ANDROID_DIR=$BUILD_DIR/godot-cpp-android
 rm -rf $PREBUILT_TARGET_DIR
 mkdir -p $PREBUILT_TARGET_DIR
 
-cd $BUILD_DIR/libgodot/release
-zip -r $PREBUILT_TARGET_DIR/libgodot.xcframework.zip libgodot.xcframework
+# cd $BUILD_DIR/libgodot/release
+# zip -r $PREBUILT_TARGET_DIR/libgodot.xcframework.zip libgodot.xcframework
 
-cd $BUILD_DIR/godot-cpp/release
-zip -r $PREBUILT_TARGET_DIR/libgodot-cpp.xcframework.zip libgodot-cpp.xcframework
+# cd $BUILD_DIR/godot-cpp/release
+# zip -r $PREBUILT_TARGET_DIR/libgodot-cpp.xcframework.zip libgodot-cpp.xcframework
 
 cd $BUILD_GODOT_CPP_ANDROID_DIR/release
 zip -r $PREBUILT_TARGET_DIR/godot-cpp-android.zip godot-cpp-android
