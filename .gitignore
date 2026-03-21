@@ -4,3 +4,5 @@ libgodot_framework/libgodot.xcodeproj/project.xcworkspace/xcuserdata/
 libgodot_framework/libgodot/libgodot.a
 
 .DS_Store
+
+ANGLE/
