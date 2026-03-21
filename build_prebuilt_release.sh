@@ -16,7 +16,7 @@ export SIGNING_DISABLED="true"
 export OSSRH_GROUP_ID="com.migeran.libgodot"
 export GODOT_VERSION_STATUS="migeran.2"
 
-if [ ! -f "$GODOT_DIR/thirdparty/swappy-frame-pacing/arm64-v8a/libswappy-static.a" ]
+if [ ! -f "$GODOT_DIR/thirdparty/swappy-frame-pacing/arm64-v8a/libswappy_static.a" ]
 then
     cd $GODOT_DIR
     python3 "${GODOT_DIR}/misc/scripts/install_swappy_android.py"
