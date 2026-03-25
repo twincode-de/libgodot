@@ -10,4 +10,5 @@
 	url = https://github.com/migeran/SwiftGodotKit.git
 [submodule "godot-cpp"]
 	path = godot-cpp
-	url = https://github.com/migeran/godot-cpp.git
+	url = https://github.com/twincode-de/godot-cpp.git
+	branch = libgodot_migeran_4.5_twincode
