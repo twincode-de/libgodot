@@ -6,7 +6,7 @@ on:
     branches:
       - libgodot_migeran_45_twincode
     paths:
-      - ".github/workflows/build-prebuilt-macos.yml"
+      - ".github/workflows/build-prebuilt.yml"
       - "build_prebuilt_release.sh"
       - "build_host_and_update_api.sh"
       - "build_libgodot.sh"
@@ -18,7 +18,7 @@ on:
       - ".gitmodules"
   pull_request:
     paths:
-      - ".github/workflows/build-prebuilt-macos.yml"
+      - ".github/workflows/build-prebuilt.yml"
       - "build_prebuilt_release.sh"
       - "build_host_and_update_api.sh"
       - "build_libgodot.sh"
