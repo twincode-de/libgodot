@@ -110,12 +110,9 @@ then
 fi
 
 target_build_options="$target_build_options library_type=$library_type"
-target_build_options="$target_build_options d3d12=no vulkan=no use_volk=no opengl3=yes"
-target_build_options="$target_build_options optimize=size lto=full"
 
 if [ "$target_platform" = "ios" ]
 then
-    target_build_options="$target_build_options metal=no"
     if [ $simulator -eq 1 ]
     then
         target_build_options="$target_build_options ios_simulator=true"
@@ -124,7 +121,7 @@ fi
 
 if [ "$target_platform" = "android" ]
 then
-    target_build_options="$target_build_options angle_libs=$angle_libs"
+    target_build_options="$target_build_options angle_libs=$angle_libs swappy=yes"
 fi
 
 if [ $debug -eq 0 ]
@@ -145,7 +142,7 @@ then
 fi
 
 cd $GODOT_DIR
-scons p=$target_platform target=$target arch=$target_arch $target_build_options swappy=yes
+scons p=$target_platform target=$target arch=$target_arch $target_build_options
 
 if [ "$target_platform" = "android" ]
 then

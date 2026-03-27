@@ -1,0 +1,106 @@
+name: Build Prebuilt Binaries
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - libgodot_migeran_45_twincode
+    paths:
+      - ".github/workflows/build-prebuilt-macos.yml"
+      - "build_prebuilt_release.sh"
+      - "build_host_and_update_api.sh"
+      - "build_libgodot.sh"
+      - "build_libgodot_xcframework.sh"
+      - "build_godotcpp_android.sh"
+      - "build_godotcpp_xcframework.sh"
+      - "godot/**"
+      - "godot-cpp/**"
+      - ".gitmodules"
+  pull_request:
+    paths:
+      - ".github/workflows/build-prebuilt-macos.yml"
+      - "build_prebuilt_release.sh"
+      - "build_host_and_update_api.sh"
+      - "build_libgodot.sh"
+      - "build_libgodot_xcframework.sh"
+      - "build_godotcpp_android.sh"
+      - "build_godotcpp_xcframework.sh"
+      - "godot/**"
+      - "godot-cpp/**"
+      - ".gitmodules"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prebuilt-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-prebuilt-release:
+    name: Build release prebuilts
+    runs-on: macos-latest
+    timeout-minutes: 180
+
+    env:
+      ANDROID_NDK_VERSION: 28.1.13356709
+      HOMEBREW_NO_AUTO_UPDATE: 1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: sdkmanager "ndk;${ANDROID_NDK_VERSION}"
+
+      - name: Install build tools
+        run: brew install scons
+
+      - name: Make build scripts executable
+        run: |
+          chmod +x build_prebuilt_release.sh
+          chmod +x build_host_and_update_api.sh
+          chmod +x build_libgodot.sh
+          chmod +x build_libgodot_xcframework.sh
+          chmod +x build_godotcpp_android.sh
+          chmod +x build_godotcpp_xcframework.sh
+          chmod +x godot/platform/android/java/gradlew
+
+      - name: Build prebuilt release binaries
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ANDROID_NDK_VERSION }}
+          LIBGODOT_PROFILE_RELEASE_IOS_ARM64: ../profiles/release/ios.py
+          LIBGODOT_PROFILE_RELEASE_ANDROID_ARM64: ../profiles/release/android.py
+          LIBGODOT_PROFILE_RELEASE_ANDROID_ARM32: ../profiles/release/android.py
+          LIBGODOT_PROFILE_RELEASE_ANDROID_X86_64: ../profiles/release/android.py
+        run: ./build_prebuilt_release.sh
+
+      - name: Show generated artifacts
+        run: find build/prebuilt/release -maxdepth 1 -type f | sort
+
+      - name: Upload prebuilt release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: libgodot-prebuilt-release
+          path: build/prebuilt/release/*
+          if-no-files-found: error
+          retention-days: 14
