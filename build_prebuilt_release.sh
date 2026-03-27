@@ -43,8 +43,8 @@ zip -r $ANDROID_LIB_BUILD_DIR/libgodot-android.zip *
 rm -rf $tmp_dir
 
 cd $BASE_DIR
-# ./build_libgodot_xcframework.sh --target template_release
-# ./build_godotcpp_xcframework.sh --target template_release
+./build_libgodot_xcframework.sh --target template_release
+./build_godotcpp_xcframework.sh --target template_release
 
 ./build_godotcpp_android.sh --target template_release
 BUILD_GODOT_CPP_ANDROID_DIR=$BUILD_DIR/godot-cpp-android
@@ -52,11 +52,11 @@ BUILD_GODOT_CPP_ANDROID_DIR=$BUILD_DIR/godot-cpp-android
 rm -rf $PREBUILT_TARGET_DIR
 mkdir -p $PREBUILT_TARGET_DIR
 
-# cd $BUILD_DIR/libgodot/release
-# zip -r $PREBUILT_TARGET_DIR/libgodot.xcframework.zip libgodot.xcframework
+cd $BUILD_DIR/libgodot/release
+zip -r $PREBUILT_TARGET_DIR/libgodot.xcframework.zip libgodot.xcframework
 
-# cd $BUILD_DIR/godot-cpp/release
-# zip -r $PREBUILT_TARGET_DIR/libgodot-cpp.xcframework.zip libgodot-cpp.xcframework
+cd $BUILD_DIR/godot-cpp/release
+zip -r $PREBUILT_TARGET_DIR/libgodot-cpp.xcframework.zip libgodot-cpp.xcframework
 
 cd $BUILD_GODOT_CPP_ANDROID_DIR/release
 zip -r $PREBUILT_TARGET_DIR/godot-cpp-android.zip godot-cpp-android
