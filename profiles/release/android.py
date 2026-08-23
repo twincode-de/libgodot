@@ -13,7 +13,7 @@ lto="full"
 
 accesskit="no"
 deprecated="no"
-minizip="no"
+minizip="yes"
 
 # Disables
 disable_xr="yes"
