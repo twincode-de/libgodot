@@ -16,6 +16,7 @@ on:
       - "godot/**"
       - "godot-cpp/**"
       - ".gitmodules"
+      - "profiles/release/**"
   pull_request:
     paths:
       - ".github/workflows/build-prebuilt.yml"
