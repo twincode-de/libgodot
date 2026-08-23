@@ -12,7 +12,7 @@ optimize="size"
 lto="full"
 
 accesskit="no"
-deprecated="no"
+deprecated="yes"
 minizip="yes"
 
 # Disables
@@ -29,7 +29,7 @@ module_webxr_enabled="no"
 # Image modules
 module_webp_enabled="yes"
 module_png_enabled="yes"
-module_jpg_enabled="no"
+module_jpg_enabled="yes"
 module_bmp_enabled="no"
 module_hdr_enabled="no"
 # Scripting modules
