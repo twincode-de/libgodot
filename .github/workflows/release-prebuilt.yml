@@ -1,0 +1,71 @@
+name: Release Prebuilt Binaries
+
+# Builds all libgodot prebuilt release binaries for the published release's tag
+# and attaches them (plus SHA256 checksums) as release assets.
+#
+# Note: GitHub uses the workflow files from the commit the release tag points to,
+# so the tag must reference a commit that already contains this file.
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+concurrency:
+  group: release-prebuilt-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-prebuilt.yml
+    with:
+      # The artifact is only an intermediate hand-off to the publish job.
+      artifact-retention-days: 1
+
+  publish:
+    name: Attach binaries to release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG_NAME: ${{ github.event.release.tag_name }}
+      DIST_DIR: dist
+
+    steps:
+      - name: Download prebuilt binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: ${{ env.DIST_DIR }}
+
+      - name: Generate checksums
+        working-directory: ${{ env.DIST_DIR }}
+        run: |
+          sha256sum -- *.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Upload assets to release
+        run: gh release upload "$TAG_NAME" "$DIST_DIR"/* --clobber
+
+      - name: Write job summary
+        working-directory: ${{ env.DIST_DIR }}
+        run: |
+          {
+            echo "### Release assets for \`${TAG_NAME}\`"
+            echo
+            echo "| File | Size | SHA256 |"
+            echo "| --- | --- | --- |"
+            while read -r checksum file; do
+              size=$(du -h -- "$file" | cut -f1)
+              echo "| \`${file}\` | ${size} | \`${checksum}\` |"
+            done < SHA256SUMS.txt
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -2,6 +2,17 @@ name: Build Prebuilt Binaries
 
 on:
   workflow_dispatch:
+  # Allows other workflows (e.g. release-prebuilt.yml) to reuse this build.
+  workflow_call:
+    inputs:
+      artifact-retention-days:
+        description: Number of days the uploaded build artifact is kept.
+        type: number
+        default: 14
+    outputs:
+      artifact-name:
+        description: Name of the uploaded artifact containing the prebuilt release binaries.
+        value: ${{ jobs.build-prebuilt-release.outputs.artifact-name }}
   push:
     branches:
       - libgodot_migeran_45_twincode
@@ -43,9 +54,13 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 180
 
+    outputs:
+      artifact-name: ${{ env.PREBUILT_ARTIFACT_NAME }}
+
     env:
       ANDROID_NDK_VERSION: 28.1.13356709
       HOMEBREW_NO_AUTO_UPDATE: 1
+      PREBUILT_ARTIFACT_NAME: libgodot-prebuilt-release
 
     steps:
       - name: Checkout repository
@@ -101,7 +116,7 @@ jobs:
       - name: Upload prebuilt release artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: libgodot-prebuilt-release
+          name: ${{ env.PREBUILT_ARTIFACT_NAME }}
           path: build/prebuilt/release/*
           if-no-files-found: error
-          retention-days: 14
+          retention-days: ${{ inputs.artifact-retention-days || 14 }}
